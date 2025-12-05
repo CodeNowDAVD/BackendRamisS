@@ -1,10 +1,14 @@
 # app/routers/ordenes_router.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict, Optional
 from app.services.orden_compra_service import OrdenCompraService
 from app.database.connection import get_db
-from app.schemas.orden_compra_schema import OrdenCompraCreate, OrdenCompraSummaryResponse, OrdenCompraEntity, OrdenCompraResponse
+from app.schemas.orden_compra_schema import (
+    OrdenCompraCreate,
+    OrdenCompraSummaryResponse,
+    OrdenCompraEntity
+)
 
 router = APIRouter(prefix="/ordenes", tags=["Órdenes Parciales"])
 
@@ -28,30 +32,32 @@ def update_orden(orden_id: int, db: Session = Depends(get_db), **kwargs):
         return service.update_orden(orden_id, **kwargs)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-from fastapi import Body
 
 @router.patch("/{orden_id}/editar")
-def editar_orden(orden_id: int, cambios: dict = Body(...), db: Session = Depends(get_db)):
+def editar_orden(orden_id: int, cambios: Dict = Body(...), db: Session = Depends(get_db)):
     service = OrdenCompraService(db)
     try:
         return service.patch_orden(orden_id, cambios)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    
+
 @router.get("/resumen")
-def resumen_ordenes(db: Session = Depends(get_db)):
+def resumen_ordenes(
+    estado: Optional[str] = Query(None, description="Filtrar por estado del RQ: no_iniciado, parcial, completado"),
+    fecha_inicio: Optional[str] = Query(None, description="Fecha mínima de emisión (YYYY-MM-DD)"),
+    fecha_fin: Optional[str] = Query(None, description="Fecha máxima de emisión (YYYY-MM-DD)"),
+    db: Session = Depends(get_db)
+):
     """
     Retorna todas las órdenes de compra agrupadas por RQ,
     con el progreso, exceso y estado de cada ítem.
+    Permite filtrar por estado y rango de fechas.
     """
     service = OrdenCompraService(db)
     try:
-        return service.listar_ordenes_por_rq()
+        return service.listar_ordenes_por_rq(estado, fecha_inicio, fecha_fin)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-
 
 @router.delete("/{orden_id}")
 def delete_orden(orden_id: int, db: Session = Depends(get_db)):

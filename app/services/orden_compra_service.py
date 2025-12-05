@@ -6,7 +6,10 @@ from app.repositories.rq_item_repository import RQItemRepository
 from app.models.orden_compra_model import OrdenCompraParcial
 from app.models.inventario_model import Inventario
 from app.services.rq_service import RQService
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+from app.repositories.rq_repository import RQRepository
+
 
 class OrdenCompraService:
     def __init__(self, db: Session):
@@ -175,40 +178,55 @@ class OrdenCompraService:
             pass
         return {"detail": "Orden eliminada"}
     
-    def listar_ordenes_por_rq(self) -> List[Dict[str, any]]:
+   
+    def listar_ordenes_por_rq(
+        self,
+        estado: Optional[str] = None,
+        fecha_inicio: Optional[str] = None,
+        fecha_fin: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """
         Devuelve todas las órdenes de compra agrupadas por RQ.
-        Cada RQ incluye sus ítems y las órdenes parciales asociadas,
-        además del progreso y exceso por ítem.
+        Incluye progreso numérico para dashboard y porcentaje para visualización.
+        Permite filtrar por estado de RQ y rango de fechas.
         """
-        from app.repositories.rq_repository import RQRepository  # suponiendo que exista
-        
+
         rq_repo = RQRepository(self.db)
-        rq_list = rq_repo.get_all()  # obtenemos todos los RQ
-        
+        rq_list = rq_repo.get_all()
+
+        fecha_inicio_dt = datetime.strptime(fecha_inicio, "%Y-%m-%d").date() if fecha_inicio else None
+        fecha_fin_dt = datetime.strptime(fecha_fin, "%Y-%m-%d").date() if fecha_fin else None
+
         resultado = []
-        
+
         for rq in rq_list:
+            fecha_rq = getattr(rq, "fecha_emision", None)
+
+            # Filtrar por rango de fechas
+            if fecha_inicio_dt and fecha_rq and fecha_rq < fecha_inicio_dt:
+                continue
+            if fecha_fin_dt and fecha_rq and fecha_rq > fecha_fin_dt:
+                continue
+
             rq_items = self.rq_item_repo.get_by_rq(rq.id)
             items_con_ordenes = []
-            
+
             for item in rq_items:
                 ordenes = self.repo.get_by_item(item.id)
-                
-                # cálculo de totales
                 comprado_total = sum([o.cantidad_comprada or 0 for o in ordenes])
                 cantidad_requerida = item.cantidad or 0
                 avance_real_rq = min(comprado_total, cantidad_requerida)
                 exceso = max(0, comprado_total - cantidad_requerida)
-                progreso_item = round((avance_real_rq / cantidad_requerida) * 100, 2) if cantidad_requerida > 0 else 0
-                
+                progreso_item_num = round((avance_real_rq / cantidad_requerida) * 100, 2) if cantidad_requerida > 0 else 0
+                progreso_item = f"{progreso_item_num}%"
+
                 if avance_real_rq >= cantidad_requerida:
                     estado_item = "completado"
                 elif avance_real_rq > 0:
                     estado_item = "parcial"
                 else:
                     estado_item = "sin_iniciar"
-                
+
                 items_con_ordenes.append({
                     "item_id": item.id,
                     "codigo": item.codigo,
@@ -219,7 +237,8 @@ class OrdenCompraService:
                     "comprado_total": comprado_total,
                     "avance_efectivo_rq": avance_real_rq,
                     "exceso": exceso,
-                    "progreso": f"{progreso_item}%",
+                    "progreso": progreso_item,
+                    "progreso_item_num": progreso_item_num,  # nuevo campo
                     "ordenes_parciales": [
                         {
                             "orden_id": o.id,
@@ -234,18 +253,35 @@ class OrdenCompraService:
                         } for o in ordenes
                     ]
                 })
-            
+
+            # calcular progreso general del RQ limitado al 100%
+            total_avance = sum([min(sum([o.cantidad_comprada or 0 for o in self.repo.get_by_item(i.id)]), i.cantidad or 0) 
+                                for i in rq_items])
+            total_requerido = sum([i.cantidad or 0 for i in rq_items])
+            progreso_rq_num = round((total_avance / total_requerido) * 100, 2) if total_requerido > 0 else 0
+            if progreso_rq_num > 100:
+                progreso_rq_num = 100
+            progreso_rq = f"{progreso_rq_num}%"  # formato string
+
+            # determinar estado general del RQ
+            estado_rq_calc = (
+                "completado" if all([i["estado_item"] == "completado" for i in items_con_ordenes])
+                else "no_iniciado" if all([i["estado_item"] == "sin_iniciar" for i in items_con_ordenes])
+                else "parcial"
+            )
+
+            # filtrar por estado si se indicó
+            if estado and estado_rq_calc != estado:
+                continue
+
             resultado.append({
                 "rq_id": rq.id,
                 "codigo_rq": getattr(rq, "codigo", None),
-                "fecha_emision": getattr(rq, "fecha_emision", None),
-                "estado_rq": getattr(rq, "estado_compra", None),
-                "progreso_rq": round(
-                    sum([min(sum([o.cantidad_comprada or 0 for o in self.repo.get_by_item(i.id)]), i.cantidad or 0) 
-                        / (i.cantidad or 1) for i in rq_items]) / len(rq_items) * 100, 2
-                ) if rq_items else 0,
+                "fecha_emision": fecha_rq,
+                "estado_rq": estado_rq_calc,
+                "progreso_rq": progreso_rq,
+                "progreso_rq_num": progreso_rq_num,  # nuevo campo
                 "items": items_con_ordenes
             })
-        
-        return resultado
 
+        return resultado

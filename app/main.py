@@ -6,6 +6,7 @@ from app.routers.rqs_router import router as rqs_router
 from app.routers.rq_item_router import router as rq_item_router
 from app.routers.orden_compra_router import router as orden_compra_router
 from app.routers.inventario_router import router as inventario_router
+from app.routers.pdf_import_router import router as importar_rq
 # Importar modelos para crear tablas
 
 # Crear tablas
@@ -15,7 +16,7 @@ app = FastAPI(title="Sistema con Roles y Auth")
 
 # Incluir routers
 app.include_router(auth_router)
-
+app.include_router(importar_rq)
 app.include_router(rqs_router)
 app.include_router(rq_item_router)
 app.include_router(orden_compra_router)
