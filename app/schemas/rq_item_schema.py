@@ -8,6 +8,17 @@ class RQItemCreate(BaseModel):
     descripcion: str
     cantidad: int
     unidad: str
+class RQItemPendienteResponse(BaseModel):
+    rq_id: int
+    nro_rq: str
+    rq_item_id: int
+    codigo: str
+    descripcion: str
+    cantidad_requerida: float
+    cantidad_comprada: float
+    cantidad_pendiente: float
+
+    model_config = {"from_attributes": True}
 
 class RQItemResponse(BaseModel):
     id: int

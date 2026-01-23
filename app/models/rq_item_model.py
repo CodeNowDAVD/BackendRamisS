@@ -12,4 +12,8 @@ class RQItem(Base):
     estado = Column(String, default="pendiente")  # pendiente, comprando, comprado
     rq_id = Column(Integer, ForeignKey("requerimientos.id"))
     requerimiento = relationship("Requerimiento", back_populates="items")
-    ordenes_parciales = relationship("OrdenCompraParcial", back_populates="rq_item")
+    ordenes_compra_items = relationship(
+        "OrdenCompraItem", 
+        back_populates="rq_item",
+        cascade="all, delete-orphan"
+    )

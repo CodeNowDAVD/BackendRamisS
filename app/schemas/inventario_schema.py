@@ -1,19 +1,24 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 
-class InventarioCreate(BaseModel):
-    codigo: str
-    descripcion: str
-    cantidad_disponible: int
-    ubicacion: str
-    rq_item_id: Optional[int] = None  # si proviene de un RQItem
-
-class InventarioResponse(BaseModel):
+class InventarioEntity(BaseModel):
+    """Esquema de respuesta para un solo ítem de inventario."""
     id: int
     codigo: str
     descripcion: str
     cantidad_disponible: int
-    ubicacion: str
-    rq_item_id: Optional[int] = None
+    ubicacion: Optional[str] = None
+    fecha_creacion: datetime
+    fecha_actualizacion: datetime
 
-    model_config = {"from_attributes": True}
+    class Config:
+        from_attributes = True
+
+class InventarioListResponse(BaseModel):
+    """Esquema para listar el inventario completo."""
+    items: List[InventarioEntity]
+    total_items: int
+    
+    class Config:
+        from_attributes = True

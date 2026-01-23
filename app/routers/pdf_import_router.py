@@ -1,20 +1,27 @@
-# app/routers/pdf_import_router.py
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.services.pdf_import_service import PDFImportService
 from app.database.connection import get_db
+from app.dependencies.auth_dependencies import get_current_user
 import os
 
-router = APIRouter(prefix="/pdf", tags=["Importación PDF"])
+router = APIRouter(
+    prefix="/pdf",
+    tags=["Importación PDF"],
+    dependencies=[Depends(get_current_user)]  # 🔐 SEGURIDAD GLOBAL
+)
 
 @router.post("/importar_rq")
-async def importar_rq(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def importar_rq(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Solo se aceptan archivos PDF")
 
     # Carpeta temporal dentro del proyecto
     temp_dir = "./temp_files"
-    os.makedirs(temp_dir, exist_ok=True)  # crea la carpeta si no existe
+    os.makedirs(temp_dir, exist_ok=True)
 
     temp_path = os.path.join(temp_dir, file.filename)
 

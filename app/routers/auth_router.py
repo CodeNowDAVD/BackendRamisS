@@ -8,13 +8,12 @@ import traceback
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post("/register", response_model=UserResponse)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    service = AuthService(db)
-    try:
-        return service.register_user(user.nombre, user.email, user.password, user.role)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+@router.post("/register")
+def register():
+    raise HTTPException(
+        status_code=403,
+        detail="Registro deshabilitado"
+    )
 
 
 @router.post("/login", response_model=Token)

@@ -42,6 +42,35 @@ class RQService:
         if not rq:
             raise ValueError("RQ no encontrada")
         return rq
+    def listar_items_pendientes_compra(self, rq_id: int):
+        rq = self.rq_repo.get_by_id(rq_id)
+        if not rq:
+            raise ValueError("RQ no encontrada")
+
+        items_pendientes = []
+
+        for item in rq.items:
+            cantidad_total = item.cantidad
+
+            # ya lo usas en otros métodos → correcto
+            cantidad_comprada = sum(
+                [op.cantidad_comprada for op in item.ordenes_compra_items]
+            )
+
+            cantidad_pendiente = max(0, cantidad_total - cantidad_comprada)
+
+            # 🔑 ESTA ES LA CONDICIÓN CLAVE
+            if cantidad_pendiente > 0:
+                items_pendientes.append({
+                    "rq_item_id": item.id,
+                    "codigo": item.codigo,
+                    "descripcion": item.descripcion,
+                    "cantidad_requerida": cantidad_total,
+                    "cantidad_comprada": cantidad_comprada,
+                    "cantidad_pendiente": cantidad_pendiente
+                })
+
+        return items_pendientes
 
     def update_rq_estado(self, rq_id: int, estado: str):
         if estado not in ["pendiente", "aprobado", "rechazado"]:
@@ -76,7 +105,7 @@ class RQService:
 
         for item in rq.items:
             cantidad_total = item.cantidad
-            compras = sum([op.cantidad_comprada for op in item.ordenes_parciales])
+            compras = sum([op.cantidad_comprada for op in item.ordenes_compra_items])
 
             # Calcular % por ítem
             if cantidad_total > 0:
@@ -116,7 +145,8 @@ class RQService:
 
         for item in rq.items:
             cantidad_total = item.cantidad
-            cantidad_comprada = sum([op.cantidad_comprada for op in item.ordenes_parciales])
+            # 💡 CORRECCIÓN APLICADA: Se usa 'ordenes_compra_items' en lugar de 'ordenes_parciales'
+            cantidad_comprada = sum([op.cantidad_comprada for op in item.ordenes_compra_items])
             cantidad_faltante = max(0, cantidad_total - cantidad_comprada)
 
             if cantidad_total > 0:
