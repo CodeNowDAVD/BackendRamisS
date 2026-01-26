@@ -1,11 +1,16 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles  # Importante para ver los archivos
+from fastapi.staticfiles import StaticFiles
 import os
 
 from app.database.base import Base
-from app.database.connection import engine
+from app.database.connection import engine, get_db
+from app.models.user import User
+from app.security.hashing import Hash
+from sqlalchemy.orm import Session
 
-# Importar tus routers existentes
+# -------------------------------
+# IMPORTAR ROUTERS
+# -------------------------------
 from app.routers.auth_router import router as auth_router
 from app.routers.rqs_router import router as rqs_router
 from app.routers.rq_item_router import router as rq_item_router
@@ -14,34 +19,26 @@ from app.routers.inventario_router import router as inventario_router
 from app.routers.pdf_import_router import router as importar_rq
 from app.routers.upload_router import router as upload_router
 from app.routers.comprobantes_router import router as comprobantes_router
-
-# Nuevo Router de Requerimientos Mobile
 from app.routers.rq_personalizado_router import router as rq_personalizado_router
-
 
 # -------------------------------
 # CREAR TABLAS
 # -------------------------------
 Base.metadata.create_all(bind=engine)
 
-
 # -------------------------------
 # APP
 # -------------------------------
 app = FastAPI(title="Sistema con Roles y Auth")
 
-
 # -------------------------------
 # CREACIÓN AUTOMÁTICA DE CARPETAS
-# (NO toca templates, solo asegura existencia)
 # -------------------------------
 FOLDERS = [
     "uploads",
     "uploads/comprobantes",
     "uploads/ordenes_compra",
-
     "temp_files",
-
     "static",
     "static/firmas",
     "static/generados",
@@ -51,14 +48,36 @@ FOLDERS = [
 for folder in FOLDERS:
     os.makedirs(folder, exist_ok=True)
 
-
 # -------------------------------
 # ARCHIVOS ESTÁTICOS
 # -------------------------------
-# Permite acceder a:
-# http://tu-dominio/static/generados/archivo.xlsx
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# -------------------------------
+# CREAR USUARIO ADMIN AUTOMÁTICAMENTE
+# -------------------------------
+def seed_admin_user(db: Session):
+    """Crea usuario admin si no existe"""
+    admin_email = "admin@example.com"
+    existing = db.query(User).filter(User.email == admin_email).first()
+    if not existing:
+        admin_user = User(
+            nombre="Admin",
+            email=admin_email,
+            password=Hash.get_password_hash("admin123"),
+            role="admin"
+        )
+        db.add(admin_user)
+        db.commit()
+        print("Usuario admin creado correctamente.")
+    else:
+        print("Usuario admin ya existe.")
+
+try:
+    db = next(get_db())  # ⚠️ Usar next() para obtener sesión del generator
+    seed_admin_user(db)
+finally:
+    db.close()
 
 # -------------------------------
 # ROUTERS
