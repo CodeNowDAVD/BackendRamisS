@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date
 from app.schemas.orden_compra_schema import OrdenCompraResponse
+from __future__ import annotations
+
 
 class RQItemCreate(BaseModel):
     codigo: str

@@ -1,4 +1,5 @@
 # app/schemas/orden_compra_schema.py
+from __future__ import annotations
 from pydantic import BaseModel, Field, validator
 from datetime import date
 from typing import Optional, List, Any, Literal, Dict
