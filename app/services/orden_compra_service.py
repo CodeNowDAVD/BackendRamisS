@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func # Importación necesaria para _total_comprado_existente
 from app.repositories.orden_compra_repository import OrdenCompraRepository, OrdenCompraComprobanteRepository, OrdenCompraItemRepository # NUEVO REPO

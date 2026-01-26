@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import Session, selectinload # 💡 Importación de selectinload
 from app.models.rq_model import Requerimiento
 from app.models.rq_item_model import RQItem # 💡 Necesario para la carga anticipada

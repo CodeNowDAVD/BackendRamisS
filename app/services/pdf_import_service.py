@@ -1,4 +1,5 @@
-# app/services/pdf_import_service.py
+from __future__ import annotations
+
 import pdfplumber
 import re
 from datetime import datetime

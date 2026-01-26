@@ -1,4 +1,4 @@
-# app/models/user.py
+from __future__ import annotations
 from sqlalchemy import Column, Integer, String
 from app.database.base import Base
 

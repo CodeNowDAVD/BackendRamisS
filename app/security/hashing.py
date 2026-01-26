@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from argon2 import PasswordHasher
 
 ph = PasswordHasher()

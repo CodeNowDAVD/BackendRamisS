@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pdfplumber
 
 pdf = pdfplumber.open("temp_files/xr20516233801SR.repx.pdf")

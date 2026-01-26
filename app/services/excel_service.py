@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import uuid
 from openpyxl import load_workbook

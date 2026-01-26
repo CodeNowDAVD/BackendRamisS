@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from app.database.connection import SessionLocal
 from app.models.user import User
 from app.security.hashing import Hash  # <-- usamos tu clase Hash

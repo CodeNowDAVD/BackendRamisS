@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import Session
 from app.models.rq_item_model import RQItem
 from app.models.orden_compra_model import OrdenCompraItem

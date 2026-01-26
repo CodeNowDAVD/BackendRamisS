@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import Session
 from app.repositories.rq_item_repository import RQItemRepository
 from app.models.rq_item_model import RQItem

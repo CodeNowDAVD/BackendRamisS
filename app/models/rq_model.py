@@ -1,3 +1,4 @@
+from __future__ import annotations
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Float, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime

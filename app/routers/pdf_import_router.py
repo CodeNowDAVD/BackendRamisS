@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.services.pdf_import_service import PDFImportService

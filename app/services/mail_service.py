@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import smtplib
 import os
 from email.message import EmailMessage

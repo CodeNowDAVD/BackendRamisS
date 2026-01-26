@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import Session
 from app.repositories.inventario_repository import InventarioRepository
 from app.models.inventario_model import Inventario
