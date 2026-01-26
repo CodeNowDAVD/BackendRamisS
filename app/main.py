@@ -24,14 +24,16 @@ from app.routers.comprobantes_router import router as comprobantes_router
 from app.routers.rq_personalizado_router import router as rq_personalizado_router
 
 # -------------------------------
-# CREAR TABLAS
-# -------------------------------
-Base.metadata.create_all(bind=engine)
-
-# -------------------------------
 # APP
 # -------------------------------
 app = FastAPI(title="Sistema con Roles y Auth")
+
+# -------------------------------
+# RUTA ROOT (IMPORTANTE PARA RAILWAY)
+# -------------------------------
+@app.get("/")
+def root():
+    return {"status": "API OK"}
 
 # -------------------------------
 # CREACIÓN AUTOMÁTICA DE CARPETAS
@@ -44,7 +46,7 @@ FOLDERS = [
     "static",
     "static/firmas",
     "static/generados",
-    "static/templates"  # 👈 ESTA SE SUBE A GITHUB (plantillas)
+    "static/templates"  # 👈 plantillas
 ]
 
 for folder in FOLDERS:
@@ -59,7 +61,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # CREAR USUARIO ADMIN AUTOMÁTICAMENTE
 # -------------------------------
 def seed_admin_user(db: Session):
-    """Crea usuario admin si no existe"""
     admin_email = "admin@example.com"
     existing = db.query(User).filter(User.email == admin_email).first()
     if not existing:
@@ -75,11 +76,20 @@ def seed_admin_user(db: Session):
     else:
         print("Usuario admin ya existe.")
 
-try:
-    db = next(get_db())  # ⚠️ Usar next() para obtener sesión del generator
-    seed_admin_user(db)
-finally:
-    db.close()
+# -------------------------------
+# STARTUP (CLAVE PARA RAILWAY)
+# -------------------------------
+@app.on_event("startup")
+def on_startup():
+    # Crear tablas
+    Base.metadata.create_all(bind=engine)
+
+    # Seed admin
+    db = next(get_db())
+    try:
+        seed_admin_user(db)
+    finally:
+        db.close()
 
 # -------------------------------
 # ROUTERS
@@ -92,4 +102,4 @@ app.include_router(importar_rq)
 app.include_router(rqs_router)
 app.include_router(rq_item_router)
 app.include_router(orden_compra_router)
-app.include_router(rq_personalizado_router)  # Integrado
+app.include_router(rq_personalizado_router)
