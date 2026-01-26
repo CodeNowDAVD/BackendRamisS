@@ -1,8 +1,7 @@
+from __future__ import annotations
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
-from __future__ import annotations
-from __future__ import annotations
 
 class InventarioEntity(BaseModel):
     """Esquema de respuesta para un solo ítem de inventario."""

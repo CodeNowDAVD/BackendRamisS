@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 from pydantic import BaseModel
 from datetime import date
 from typing import List, Optional
 from app.schemas.rq_item_schema import RQItemResponse
-from __future__ import annotations
 
 class RQCreate(BaseModel):
     nro_rq: str

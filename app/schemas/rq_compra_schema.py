@@ -1,6 +1,6 @@
+from __future__ import annotations
 from pydantic import BaseModel
 from typing import List
-from __future__ import annotations
 
 
 class RQItemCompraEstado(BaseModel):
