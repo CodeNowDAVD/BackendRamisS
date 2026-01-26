@@ -33,7 +33,7 @@ app = FastAPI(title="Sistema con Roles y Auth")
 # -------------------------------
 @app.get("/")
 def root():
-    return {"status": "API OK"}
+    return {"status": "OK", "message": "FastAPI alive"}
 
 # -------------------------------
 # CREACIÓN AUTOMÁTICA DE CARPETAS
