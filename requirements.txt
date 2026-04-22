@@ -1,8 +1,8 @@
 fastapi==0.95.2
-uvicorn[standard]==0.30.0
+uvicorn[standard]==0.22.0
 
 # Base de datos
-SQLAlchemy==1.4.49
+SQLAlchemy==1.4.4
 psycopg2-binary==2.9.9
 
 # Variables de entorno
