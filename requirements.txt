@@ -31,3 +31,4 @@ pdfplumber==0.11.9
 passlib[bcrypt]==1.7.4
 
   
+pyasn1>=0.6.3 # not directly required, pinned by Snyk to avoid a vulnerability
