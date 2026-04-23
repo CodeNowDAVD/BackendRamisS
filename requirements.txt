@@ -1,5 +1,5 @@
-fastapi==0.95.2
-uvicorn[standard]==0.22.0
+fastapi==0.128.8
+uvicorn[standard]==0.34.0
 
 # Base de datos
 SQLAlchemy==1.4.4
@@ -10,14 +10,14 @@ python-dotenv==1.2.2
 
 # Seguridad
 argon2-cffi==23.1.0
-python-jose[cryptography]==3.4.0
-
+PyJWT[crypto]==2.10.1
 
 # Validaciones
-pydantic==1.10.13
+pydantic==2.11.4
 email-validator==2.1.0.post1
 python-multipart==0.0.26
 pandas==2.2.2
+pyasn1>=0.6.3
 
 
 # Excel
@@ -29,5 +29,3 @@ xlrd>=2.0.1
 # PDF
 pdfplumber==0.11.9
 passlib[bcrypt]==1.7.4
-
-  

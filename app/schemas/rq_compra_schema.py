@@ -1,6 +1,8 @@
 from __future__ import annotations
-from pydantic import BaseModel
+
 from typing import List
+
+from pydantic import BaseModel, ConfigDict
 
 
 class RQItemCompraEstado(BaseModel):
@@ -12,7 +14,7 @@ class RQItemCompraEstado(BaseModel):
     cantidad_faltante: int
     progreso: float  # %
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RQCompraEstadoResponse(BaseModel):
@@ -22,4 +24,4 @@ class RQCompraEstadoResponse(BaseModel):
     progreso_compra: float
     items: List[RQItemCompraEstado]
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)

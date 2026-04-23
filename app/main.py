@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-import os
 
 from app.database.base import Base
 from app.database.connection import engine, get_db
@@ -26,10 +28,43 @@ from app.routers.almacen_articulo_router import router as almacen_articulo_route
 from app.routers.almacen_prestamo import router as almacen_prestamo_router
 from app.routers.almacen_devolucion import router as almacen_devolucion_router
 
+
+def seed_admin_user(db: Session) -> None:
+    admin_email = "admin@example.com"
+    existing = db.query(User).filter(User.email == admin_email).first()
+    if not existing:
+        admin_user = User(
+            nombre="Admin",
+            apellidos="User",
+            dni="00000000A",
+            cargo="Administrador",
+            codigo_unico="ADMIN001",
+            email=admin_email,
+            password=Hash.get_password_hash("admin123"),
+            role="admin",
+        )
+        db.add(admin_user)
+        db.commit()
+        print("Usuario admin creado correctamente.")
+    else:
+        print("Usuario admin ya existe.")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    db = next(get_db())
+    try:
+        seed_admin_user(db)
+    finally:
+        db.close()
+    yield
+
+
 # -------------------------------
 # APP
 # -------------------------------
-app = FastAPI(title="Sistema con Roles y Auth")
+app = FastAPI(title="Sistema con Roles y Auth", lifespan=lifespan)
 
 # -------------------------------
 # RUTA ROOT (IMPORTANTE PARA RAILWAY)
@@ -59,44 +94,6 @@ for folder in FOLDERS:
 # ARCHIVOS ESTÁTICOS
 # -------------------------------
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# -------------------------------
-# CREAR USUARIO ADMIN AUTOMÁTICAMENTE
-# -------------------------------
-def seed_admin_user(db: Session):
-    admin_email = "admin@example.com"
-    existing = db.query(User).filter(User.email == admin_email).first()
-    if not existing:
-        admin_user = User(
-            nombre="Admin",
-            apellidos="User",
-            dni="00000000A",
-            cargo="Administrador",
-            codigo_unico="ADMIN001",  
-            email=admin_email,
-            password=Hash.get_password_hash("admin123"),
-            role="admin"
-        )
-        db.add(admin_user)
-        db.commit()
-        print("Usuario admin creado correctamente.")
-    else:
-        print("Usuario admin ya existe.")
-
-# -------------------------------
-# STARTUP (CLAVE PARA RAILWAY)
-# -------------------------------
-@app.on_event("startup")
-def on_startup():
-    # Crear tablas
-    Base.metadata.create_all(bind=engine)
-
-    # Seed admin
-    db = next(get_db())
-    try:
-        seed_admin_user(db)
-    finally:
-        db.close()
 
 # -------------------------------
 # ROUTERS

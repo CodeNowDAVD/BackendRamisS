@@ -1,7 +1,10 @@
 from __future__ import annotations
-from pydantic import BaseModel
-from typing import Optional, List
+
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, ConfigDict
+
 
 class InventarioEntity(BaseModel):
     """Esquema de respuesta para un solo ítem de inventario."""
@@ -13,13 +16,12 @@ class InventarioEntity(BaseModel):
     fecha_creacion: datetime
     fecha_actualizacion: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class InventarioListResponse(BaseModel):
     """Esquema para listar el inventario completo."""
     items: List[InventarioEntity]
     total_items: int
-    
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)

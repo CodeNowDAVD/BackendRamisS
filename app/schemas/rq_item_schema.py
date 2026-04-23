@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import date
+from typing import List
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from app.schemas.orden_compra_schema import OrdenCompraResponse
 
 
@@ -11,6 +13,8 @@ class RQItemCreate(BaseModel):
     descripcion: str
     cantidad: int
     unidad: str
+
+
 class RQItemPendienteResponse(BaseModel):
     rq_id: int
     nro_rq: str
@@ -21,7 +25,8 @@ class RQItemPendienteResponse(BaseModel):
     cantidad_comprada: float
     cantidad_pendiente: float
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
+
 
 class RQItemResponse(BaseModel):
     id: int
@@ -29,6 +34,6 @@ class RQItemResponse(BaseModel):
     descripcion: str
     cantidad: int
     unidad: str
-    ordenes_parciales: List[OrdenCompraResponse] = []
+    ordenes_parciales: List[OrdenCompraResponse] = Field(default_factory=list)
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)

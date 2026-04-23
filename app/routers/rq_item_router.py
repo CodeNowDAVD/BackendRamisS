@@ -29,7 +29,7 @@ def create_item(
     db: Session = Depends(get_db)
 ):
     service = RQItemService(db)
-    return service.create_item(item.dict(), rq_id)
+    return service.create_item(item.model_dump(), rq_id)
 
 
 @router.get("/pendientes", response_model=List[RQItemPendienteResponse])

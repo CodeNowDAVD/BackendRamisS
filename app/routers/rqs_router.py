@@ -8,7 +8,8 @@ from app.database.connection import get_db
 from app.services.rq_service import RQService
 from app.services.rq_item_service import RQItemService
 
-from app.schemas.rq_schema import RQCreate, RQResponse, RQItemPendienteResponse
+from app.schemas.rq_schema import RQCreate, RQResponse
+from app.schemas.rq_item_schema import RQItemPendienteResponse
 from app.schemas.rq_estado_schema import RQEstadoUpdate
 from app.schemas.rq_compra_schema import RQCompraEstadoResponse
 
@@ -27,7 +28,7 @@ router = APIRouter(
 def create_rq(rq: RQCreate, db: Session = Depends(get_db)):
     service = RQService(db)
     try:
-        return service.create_rq(rq.dict())
+        return service.create_rq(rq.model_dump())
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

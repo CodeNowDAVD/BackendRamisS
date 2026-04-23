@@ -1,6 +1,8 @@
 from __future__ import annotations
-from pydantic import BaseModel, EmailStr, Field
+
 from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserCreate(BaseModel):
@@ -31,10 +33,10 @@ class UserResponse(BaseModel):
     email: EmailStr
     codigo_unico: Optional[str]
     # CAMBIO AQUÍ: Hazlo opcional y con un valor por defecto
-    role: Optional[str] = "user" 
+    role: Optional[str] = "user"
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class Token(BaseModel):
     access_token: str
