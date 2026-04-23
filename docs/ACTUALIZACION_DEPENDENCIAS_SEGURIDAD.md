@@ -21,7 +21,7 @@ Cerrar los hallazgos **“gordos”** que Snyk reportaba sobre:
 | `fastapi` | 0.95.2 | **0.128.8** |
 | `uvicorn[standard]` | 0.22.0 | **0.34.0** |
 | `pydantic` | 1.10.13 | **2.11.4** |
-| JWT | `python-jose[cryptography]` | **`PyJWT[crypto]==2.10.1`** |
+| JWT | `python-jose[cryptography]` | **`PyJWT[crypto]==2.12.0`** (CVE-2024-32597 / cabecera `crit` en JWS) |
 | `pyasn1` | (solo transitiva) | **>= 0.6.3** (pin explícito para CVEs de `pyasn1`) |
 
 **Sin cambio de versión en esta migración:** `SQLAlchemy`, `psycopg2-binary`, `python-dotenv`, `argon2-cffi`, `python-multipart`, `pandas`, `openpyxl`, `Pillow`, `xlrd`, `pdfplumber`, `passlib`, `email-validator` (ya estaban actualizados en pasos previos).
